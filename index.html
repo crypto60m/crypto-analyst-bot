@@ -1,1 +1,44 @@
 
+<!DOCTYPE html><html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>کریپتو آنالیز</title>
+<style>
+body{font-family:Arial,sans-serif;background:#101827;color:white;padding:20px;text-align:center}
+main{max-width:500px;margin:auto;background:#1e293b;padding:20px;border-radius:15px}
+input,button{padding:12px;margin:8px;border-radius:8px;font-size:16px}
+button{background:#22c55e;border:0;cursor:pointer}
+#result{white-space:pre-line;margin-top:20px}
+</style>
+</head>
+<body>
+<main>
+<h1>📊 کریپتو آنالیز</h1>
+<p>تحلیل مقدماتی بازار ارز دیجیتال</p>
+<input id="symbol" value="BTCUSDT" aria-label="نماد ارز">
+<br>
+<button onclick="analyze()">شروع تحلیل</button>
+<div id="result">برای شروع، دکمه تحلیل را بزنید.</div>
+</main>
+<script>
+async function analyze(){
+const out=document.getElementById('result');
+const symbol=document.getElementById('symbol').value.trim().toUpperCase();
+if(!/^[A-Z0-9]{5,20}$/.test(symbol)){out.textContent='نماد ارز را بررسی کنید.';return;}
+out.textContent='در حال دریافت اطلاعات...';
+try{
+const url='https://data-api.binance.vision/api/v3/klines?symbol='+symbol+'&interval=1h&limit=50';
+const response=await fetch(url);
+if(!response.ok)throw new Error('نماد پیدا نشد یا سرویس در دسترس نیست.');
+const data=await response.json();
+const closes=data.map(c=>Number(c[4]));
+const last=closes[closes.length-1];
+const first=closes[0];
+const change=(last-first)/first*100;
+out.textContent='نماد: '+symbol+'\nآخرین قیمت کندل: '+last+'\nتغییر تقریبی ۵۰ کندل: '+change.toFixed(2)+'%\nروند مقدماتی: '+(change>0?'صعودی':change<0?'نزولی':'خنثی')+'\n\nاین فقط تحلیل مقدماتی است، نه تضمین جهت بازار.';
+}catch(e){out.textContent='خطا در دریافت اطلاعات: '+e.message;}
+}
+</script>
+</body>
+</html>
